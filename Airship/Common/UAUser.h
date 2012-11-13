@@ -42,6 +42,7 @@ typedef enum _UAUserState {
 // Notified when user created or modified, not including recovery
 - (void)userUpdated;
 - (void)userUpdateFailed;
+- (void)userUpdateExisted;
 
 // Notified during recovering process
 - (void)userRecoveryStarted;

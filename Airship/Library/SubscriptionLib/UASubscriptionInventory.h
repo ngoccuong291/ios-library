@@ -27,6 +27,9 @@
 
 #import "UAObservable.h"
 
+#define KEY_SUBSCRIPTION_TRANSACTION @"SubscriptionTransactionKey"
+
+
 @class UAProductInventory;
 @class UAContentInventory;
 @class UASubscriptionProduct;
@@ -167,5 +170,7 @@
 - (void)contentInventoryUpdated;
 
 - (void)setUserPurchaseInfo:(NSDictionary *)purchaseInfo;
+
+- (void)recordTransactionToServer:(NSString *)key productId:(NSString *)product_id receipt:(NSString *)receipt transaction:(SKPaymentTransaction *)transaction;
 
 @end

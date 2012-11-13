@@ -598,8 +598,9 @@ static UAUser *_defaultUser;
     if(request.responseStatusCode == 409) {
         self.email = [UAKeychainUtils getEmailAddress:[[UAirship shared] appId]];
         // Data for this user exists already, so we need to start the recovery flow
-        [self startRecovery];
+//        [self startRecovery];
 
+        [self notifyObservers:@selector(userUpdateExisted)];
     } else if (request.responseStatusCode == 200) {
         // Need to save user data and also loadSubscriptions
         [self saveUserData];

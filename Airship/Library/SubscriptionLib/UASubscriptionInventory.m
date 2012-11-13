@@ -238,7 +238,11 @@
     
     NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
     [userInfo setObject:UASubscriptionReceiptVerificationFailure forKey:NSLocalizedDescriptionKey];
-    
+    if (transaction) {
+        [userInfo setObject:transaction forKey:KEY_SUBSCRIPTION_TRANSACTION];        
+    }
+
+
     NSError *error = [NSError errorWithDomain:UASubscriptionTransactionErrorDomain
                                          code:UASubscriptionReceiptVerificationServiceFailedErrorType
                                      userInfo:userInfo];
@@ -380,29 +384,36 @@
         return;
     }
 
+    [self recordTransactionToServer:key productId:product_id receipt:receipt transaction:transaction];
+}
+
+- (void)recordTransactionToServer:(NSString *)key productId:(NSString *)product_id receipt:(NSString *)receipt transaction:(SKPaymentTransaction *)transaction
+{
     NSString *urlString = [NSString stringWithFormat:@"%@%@%@/subscriptions/%@/purchase",
-                           [[UAirship shared] server],
-                           @"/api/user/",
-                           [UAUser defaultUser].username,
-                           key];
+                                                     [[UAirship shared] server],
+                                                     @"/api/user/",
+                                                     [UAUser defaultUser].username,
+                                                     key];
 
     UA_ASIHTTPRequest *request = [UAUtils userRequestWithURL:[NSURL URLWithString:urlString]
-                                                   method:@"POST"
-                                                 delegate:self
-                                                   finish:@selector(subscriptionPurchased:)
-                                                     fail:@selector(purchaseRequestWentWrong:)];
+            method:@"POST"
+          delegate:self
+            finish:@selector(subscriptionPurchased:)
+              fail:@selector(purchaseRequestWentWrong:)];
+    if (transaction) {
+        request.userInfo = [NSDictionary dictionaryWithObject:transaction forKey:@"transaction"];        
+    }
 
-    request.userInfo = [NSDictionary dictionaryWithObject:transaction forKey:@"transaction"];
 
     UA_SBJsonWriter *writer = [[UA_SBJsonWriter alloc] init];
     writer.humanReadable = NO;
-    
+
     NSMutableDictionary *data = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
-                                 product_id,
-                                 @"product_id",
-                                 receipt,
-                                 @"transaction_receipt",
-                                 nil];
+            product_id,
+            @"product_id",
+            receipt,
+            @"transaction_receipt",
+            nil];
     NSString *body = [writer stringWithObject:data];
     [data release];
     [writer release];
