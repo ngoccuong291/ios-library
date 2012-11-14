@@ -456,7 +456,10 @@
             }
             
             //close the transaction
-            [[SKPaymentQueue defaultQueue] finishTransaction:transaction];
+            if (transaction) {
+                [[SKPaymentQueue defaultQueue] finishTransaction:transaction];                
+            }
+
             
             //notify the observers
             if (isRenewal) {
